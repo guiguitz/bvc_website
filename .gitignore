@@ -16,8 +16,6 @@ dist/
 .DS_Store
 Thumbs.db
 
-# IDE files
-.vscode/
 
 # Environment files
 .env
