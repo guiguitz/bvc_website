@@ -7,7 +7,7 @@
       "name": "Launch React App",
       "url": "http://localhost:3000",
       "webRoot": "${workspaceFolder}/src",
-      "preLaunchTask": "npm: start"
+      "preLaunchTask": "npm: init-db"
     }
   ],
   "compounds": []

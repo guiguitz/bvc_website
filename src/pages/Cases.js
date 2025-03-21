@@ -1,7 +1,12 @@
 import React from "react";
 
 export function Cases() {
-    return <div>Lista de Casos com opções de filtragem.</div>;
+    return (
+        <div>
+            <h1>Casos</h1>
+            <p>Gerencie seus casos com opções de filtragem e organização.</p>
+        </div>
+    );
 }
 
 export default Cases;

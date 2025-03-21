@@ -3,17 +3,29 @@
   "version": "1.0.0",
   "description": "A website for managing cases and finances.",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
-    "start": "react-scripts start",
+    "start": "npm run init-db && concurrently \"npm run server\" \"react-scripts start\"",
+    "server": "node src/server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "init-db": "node src/database/initializeDB.js"
   },
   "dependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-router-dom": "^6.0.0",
-    "react-scripts": "^5.0.1"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.18.2",
+    "pg": "^8.11.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.14.2",
+    "react-scripts": "^5.0.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
   },
   "author": "",
   "license": "ISC",

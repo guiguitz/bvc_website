@@ -3,16 +3,49 @@ body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-color: #efece3;
+    color: #050a30;
+}
+
+nav {
+    background-color: #242d4c;
+    padding: 10px;
 }
 
 nav ul {
     list-style: none;
     padding: 0;
     display: flex;
-    gap: 10px;
+    gap: 15px;
+    margin: 0;
 }
 
 nav ul li a {
     text-decoration: none;
-    color: blue;
+    color: #c4c0b3;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+nav ul li a:hover {
+    color: #efece3;
+}
+
+h1, h2, h3 {
+    color: #050a30;
+}
+
+button {
+    background-color: #242d4c;
+    color: #efece3;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #050a30;
 }

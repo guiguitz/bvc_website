@@ -9,6 +9,7 @@ export function Navbar() {
                 <li><a href="/cases/new">Novo Caso</a></li>
                 <li><a href="/finance">Financeiro</a></li>
             </ul>
+            <p style={{ color: "#c4c0b3", marginTop: "10px" }}>Beatriz Costa | beatrizvc.adv@gmail.com</p>
         </nav>
     );
 }
