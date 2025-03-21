@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import databaseHandler from "./database/databaseHandler.js";
+import routes from "./routes.js";
 
 const app = express();
 const PORT = 5000;
@@ -10,8 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use("/api/options", databaseHandler);
-app.use("/api/cases", databaseHandler);
+app.use("/api", routes);
 
 // Start the server
 app.listen(PORT, () => {

@@ -1,11 +1,11 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Dashboard from "./pages/Dashboard.js";
-import Cases from "./pages/Cases.js";
-import CaseForm from "./pages/CaseForm.js";
-import Finance from "./pages/Finance.js";
-import Navbar from "./components/NavBar.js";
-import "./styles/global.css";
+import Dashboard from "./Dashboard.js";
+import Cases from "./Cases.js";
+import CaseForm from "./CaseForm.js";
+import Finance from "./Finance.js";
+import Navbar from "../components/NavBar.js";
+import "../styles/global.css";
 
 function App() {
     return (

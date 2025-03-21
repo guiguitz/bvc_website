@@ -3,14 +3,14 @@ import fs from "fs/promises";
 
 async function initializeDatabase() {
     try {
-        const sql = await fs.readFile("./database/case_management.sql", "utf-8");
+        const sql = await fs.readFile("./src/server/database/database.sql", "utf-8");
         const statements = sql.split(";").map(stmt => stmt.trim()).filter(stmt => stmt);
 
         console.log("Starting database initialization...");
         for (const statement of statements) {
             try {
                 console.log(`Executing: ${statement}`);
-                await db.exec(statement); // Execute each SQL statement
+                db.exec(statement);
             } catch (error) {
                 console.error(`Error executing statement: ${statement}`, error);
             }
@@ -21,7 +21,7 @@ async function initializeDatabase() {
         console.error("Error initializing database:", error);
     } finally {
         try {
-            await db.close(); // Close the database connection
+            db.close(); // Close the database connection
             console.log("Database connection closed.");
         } catch (closeError) {
             console.error("Error closing the database connection:", closeError);

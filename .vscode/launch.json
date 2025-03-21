@@ -6,9 +6,21 @@
       "request": "launch",
       "name": "Launch React App",
       "url": "http://localhost:3000",
-      "webRoot": "${workspaceFolder}/src",
+      "webRoot": "${workspaceFolder}/src/client",
+      "preLaunchTask": "npm: init-db"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Server",
+      "program": "${workspaceFolder}/src/server/server.js",
       "preLaunchTask": "npm: init-db"
     }
   ],
-  "compounds": []
+  "compounds": [
+    {
+      "name": "Start Full App",
+      "configurations": ["Launch Server", "Launch React App"]
+    }
+  ]
 }
