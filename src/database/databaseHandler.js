@@ -1,5 +1,7 @@
 import { db } from "../database/connection.js";
 import { promisify } from "util";
+import fs from "fs";
+import path from "path";
 
 const dbAllAsync = promisify(db.all.bind(db));
 
@@ -40,7 +42,7 @@ export default async function handler(req, res) {
 
             // Validate required fields
             const requiredFields = [
-                "Name", "CPF", "RG", "Address", "JusticeScopeID", "DemandTypeID", "CaseStatusID"
+                "Name", "CPF", "RG", "Address", "JusticeScopeID", "DemandTypeID", "CaseStatusID", "ProcessNumber"
             ];
             const missingFields = requiredFields.filter(field => !caseData[field] || caseData[field].trim() === "");
             if (missingFields.length > 0) {
@@ -48,7 +50,12 @@ export default async function handler(req, res) {
                 return res.status(400).json({ error: `Missing required fields: ${missingFields.join(", ")}` });
             }
 
-            console.log("Received case data for saving:", caseData); // Logging received data
+            // Create directory in <cwd>/processos
+            const processDir = path.resolve("processos", caseData.ProcessNumber);
+            if (!fs.existsSync(processDir)) {
+                fs.mkdirSync(processDir, { recursive: true });
+                console.log(`Directory created at: ${processDir}`);
+            }
 
             const query = `
                 INSERT INTO Cases (
@@ -64,18 +71,23 @@ export default async function handler(req, res) {
                 caseData.ProcessNumber, caseData.Observations, caseData.CaseStatusID
             ];
 
-            console.log("Executing query:", query); // Logging query
-            console.log("With parameters:", params); // Logging parameters
+            console.log("Executing query:", query);
+            console.log("With parameters:", params);
 
-            await db.run(query, params);
+            await new Promise((resolve, reject) => {
+                db.run(query, params, (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
 
-            console.log("Case saved successfully."); // Logging success
-            return res.status(201).json({ message: "Case saved successfully" }); // Ensure response is returned
+            console.log("Case saved successfully.");
+            return res.status(201).json({ message: "Case saved successfully" });
         } catch (error) {
-            console.error("Error saving case:", error.message); // Log error message
-            console.error("Stack trace:", error.stack); // Log stack trace for debugging
+            console.error("Error saving case:", error.message);
+            console.error("Stack trace:", error.stack);
             if (!res.headersSent) {
-                return res.status(500).json({ error: "Failed to save case" }); // Send error response only if headers are not sent
+                return res.status(500).json({ error: "Failed to save case" });
             }
         }
     }
@@ -83,7 +95,7 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
         const { type } = req.query;
 
-        console.log("Received request for type:", type); // Debugging
+        console.log("Received request for type:", type);
 
         if (!type || !TABLES[type]) {
             console.error("Invalid or missing 'type' query parameter.");
@@ -92,9 +104,9 @@ export default async function handler(req, res) {
 
         const tableName = TABLES[type];
         try {
-            console.log(`Fetching data from table: ${tableName}`); // Debugging
+            console.log(`Fetching data from table: ${tableName}`);
             const rows = await dbAllAsync(`SELECT DISTINCT * FROM ${tableName}`, []);
-            console.log(`Fetched rows from ${tableName}:`, rows); // Debugging
+            console.log(`Fetched rows from ${tableName}:`, rows);
 
             if (!rows || rows.length === 0) {
                 console.warn(`No records found in ${tableName}.`);

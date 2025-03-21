@@ -165,11 +165,11 @@ export function CaseForm() {
                 body: JSON.stringify(formDataWithFees),
             });
 
-            console.log("Response status:", response.status); // Log response status
+            console.log("Response status:", response.status);
 
             if (response.ok) {
                 const result = await response.json();
-                console.log("Response from server:", result); // Log server response
+                console.log("Response from server:", result);
                 alert("Caso salvo com sucesso!");
                 setFormData({
                     Name: "", CPF: "", RG: "", Address: "", Profession: "", Phone: "", Email: "",

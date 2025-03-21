@@ -11,7 +11,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/options", databaseHandler);
-app.post("/api/cases", databaseHandler);
+app.use("/api/cases", databaseHandler);
 
 // Start the server
 app.listen(PORT, () => {
