@@ -26,7 +26,7 @@ This is a React-based website for managing legal cases and finances for Beatriz 
    DB_USER=root
    DB_PASSWORD=your_secure_password
    DB_NAME=bvc.db
-   DB_PATH=c:/Users/gvamorim/Documents/bvc_website/server/database/bvc.db
+   DB_PATH=c:/Ful/Path/To/Database
    ```
    Replace `your_secure_password` with a secure password of your choice.
 4. Run `npm start` to start the development server.
