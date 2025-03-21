@@ -18,7 +18,7 @@ export function CaseForm() {
     const [errors, setErrors] = useState({});
     const [deadlines, setDeadlines] = useState([{ PrazoTipo: "", PrazoData: "", PrazoStatus: "" }]);
     const [fees, setFees] = useState([{ HonorariosTipo: "", HonorariosValor: "", HonorariosStatus: "" }]);
-
+    
     const validateCPF = (cpf) => {
         cpf = cpf.replace(/[^\d]/g, ""); // Remove non-numeric characters
         if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false; // Check length and repeated digits
@@ -218,6 +218,17 @@ export function CaseForm() {
         }
     };
 
+    const isFormValid = () => {
+        // Check if all mandatory fields are filled
+        const mandatoryFields = ["Name", "CPF", "RG", "Address", "Phone", "Email"];
+        const areFieldsFilled = mandatoryFields.every((field) => formData[field]?.trim() !== "");
+
+        // Check if there are no errors
+        const hasNoErrors = Object.keys(errors).length === 0;
+
+        return areFieldsFilled && hasNoErrors;
+    };
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -384,7 +395,13 @@ export function CaseForm() {
                 </fieldset>
             </form>
 
-            <button className={styles.saveButton} onClick={handleSave}>Salvar</button>
+            <button
+                className={styles.saveButton}
+                onClick={handleSave}
+                disabled={!isFormValid()} // Disable button if form is invalid
+            >
+                Salvar
+            </button>
         </div>
     );
 }
