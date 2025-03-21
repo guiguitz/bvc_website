@@ -41,6 +41,16 @@ export function CaseForm() {
         return emailRegex.test(email);
     };
 
+    const validateRG = (rg) => {
+        const rgRegex = /^(\d{1,2}\.?\d{3}\.?\d{3}-?[0-9XxA-Za-z]?|\d{5,9}[0-9XxA-Za-z]?)$/;
+        return rgRegex.test(rg);
+    };
+
+    const validatePhone = (phone) => {
+        const phoneRegex = /^\d{10,11}$/; // Accepts 10 or 11 digits (e.g., 1234567890 or 12345678901)
+        return phoneRegex.test(phone);
+    };
+
     useEffect(() => {
         const fetchOptions = async () => {
             try {
@@ -113,6 +123,16 @@ export function CaseForm() {
         // Additional validation for Email
         if (name === "Email" && value.trim() !== "" && !validateEmail(value)) {
             setErrors({ ...errors, Email: "E-mail inválido" });
+        }
+
+        // Additional validation for RG
+        if (name === "RG" && value.trim() !== "" && !validateRG(value)) {
+            setErrors({ ...errors, RG: "RG inválido" });
+        }
+
+        // Additional validation for Phone
+        if (name === "Phone" && value.trim() !== "" && !validatePhone(value)) {
+            setErrors({ ...errors, Phone: "Telefone inválido" });
         }
     };
 
@@ -225,10 +245,16 @@ export function CaseForm() {
                             <input type="text" name="CPF" value={formData.CPF} onChange={handleChange} />
                             {errors.CPF && <span className={styles.error}>{errors.CPF}</span>}
                         </label>
-                        <label>RG:<input type="text" name="RG" value={formData.RG} onChange={handleChange} /></label>
+                        <label>RG:
+                            <input type="text" name="RG" value={formData.RG} onChange={handleChange} />
+                            {errors.RG && <span className={styles.error}>{errors.RG}</span>}
+                        </label>
                         <label>Endereço:<textarea name="Address" value={formData.Address} onChange={handleChange}></textarea></label>
                         <label>Profissão:<input type="text" name="Profession" value={formData.Profession} onChange={handleChange} /></label>
-                        <label>Telefone:<input type="text" name="Phone" value={formData.Phone} onChange={handleChange} /></label>
+                        <label>Telefone:
+                            <input type="text" name="Phone" value={formData.Phone} onChange={handleChange} />
+                            {errors.Phone && <span className={styles.error}>{errors.Phone}</span>}
+                        </label>
                         <label>Email:
                             <input type="email" name="Email" value={formData.Email} onChange={handleChange} />
                             {errors.Email && <span className={styles.error}>{errors.Email}</span>}
