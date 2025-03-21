@@ -17,7 +17,7 @@ dist/
 Thumbs.db
 
 # Environment files
-.env
+**/*.env
 
 # SQLite file
 **/*.db
