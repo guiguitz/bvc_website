@@ -1,0 +1,259 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+    text-align: center;
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.fieldset {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background: white;
+    transition: box-shadow 0.3s ease;
+}
+
+.fieldset:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+legend {
+    font-size: 18px;
+    font-weight: bold;
+    color: #444;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    margin-bottom: 10px; /* Reduced spacing */
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    margin-bottom: 5px; /* Reduced spacing */
+}
+
+input, textarea, select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    outline: none;
+}
+
+.saveButton {
+    width: 100%;
+    padding: 12px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.saveButton:hover {
+    background: #0056b3;
+    transform: scale(1.02);
+}
+
+.saveButton:active {
+    background: #003f7f;
+    transform: scale(0.98);
+}
+
+.saveButton:disabled {
+    background: #ccc; /* Light gray */
+    cursor: not-allowed;
+    transform: none; /* Disable hover effects */
+}
+
+.statusContainer {
+    display: flex;
+    flex-direction: column; /* Align label and select vertically */
+    align-items: flex-start; /* Align content to the left */
+    margin-bottom: 20px;
+    padding-left: 15px; /* Match padding with other form elements */
+}
+
+.statusContainer label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #444;
+    margin-bottom: 5px; /* Add spacing between label and select */
+}
+
+.statusContainer select {
+    width: 100%; /* Ensure the select box spans the same width as other inputs */
+    max-width: 300px; /* Optional: Limit the width for consistency */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Ensure proper spacing between title and dropdown */
+    margin-bottom: 20px;
+}
+
+.statusDropdown {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    max-width: 200px; /* Optional: Limit the width for consistency */
+}
+
+.deadlineBox {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background: #fefefe;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.deadlineBox:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.deadlineActions {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.deadlineActions button {
+    background: #6c757d; /* Grey */
+    color: #ffffff; /* White */
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.deadlineActions button:hover {
+    background: #5a6268; /* Darker Grey */
+}
+
+.addDeadlineButton {
+    background: #c4c0b3; /* Beige */
+    color: #050a30; /* Navy Blue */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.addDeadlineButton:hover {
+    background: #efece3; /* Light Beige */
+    transform: scale(1.02);
+}
+
+.addDeadlineButton:active {
+    background: #c4c0b3; /* Beige */
+    transform: scale(0.98);
+}
+
+.feeBox {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background: #fefefe;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.feeBox:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.feeActions {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.feeActions button {
+    background: #6c757d; /* Grey */
+    color: #ffffff; /* White */
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.feeActions button:hover {
+    background: #5a6268; /* Darker Grey */
+}
+
+.addFeeButton {
+    background: #c4c0b3; /* Beige */
+    color: #050a30; /* Navy Blue */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.addFeeButton:hover {
+    background: #efece3; /* Light Beige */
+    transform: scale(1.02);
+}
+
+.addFeeButton:active {
+    background: #c4c0b3; /* Beige */
+    transform: scale(0.98);
+}
+
+.error {
+    color: #ff4d4d; /* Red for errors */
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.asterisk {
+    color: #ff4d4d; /* Red color for mandatory fields */
+    margin-left: 5px;
+}

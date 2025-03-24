@@ -52,7 +52,7 @@ bvc_website/
 │   │   │   └── Finance.js   # Finance page
 │   │   ├── styles/          # CSS styles
 │   │   │   ├── global.css   # Global styles
-│   │   │   └── CaseForm.module.css # Case form-specific styles
+│   │   │   └── Case.css     # Case form-specific styles
 │   │   └── index.js         # React entry point
 │   ├── server/
 │   │   ├── database/        # Database-related files

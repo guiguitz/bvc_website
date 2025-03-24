@@ -92,6 +92,30 @@ export default async function handler(req, res) {
         }
     }
 
+    if (req.method === "GET" && req.url === "/api/cases-with-deadlines") {
+        try {
+            const query = `
+                SELECT
+                    c.Name AS NomeDoAutor,
+                    c.ProcessNumber AS NumeroProcesso,
+                    dt.TypeName AS TipoPrazo,
+                    d.DeadlineDate AS Prazo,
+                    ds.StatusName AS Status,
+                    c.Observations AS Observacoes
+                FROM Cases c
+                JOIN Deadlines d ON c.CaseID = d.CaseID
+                JOIN DeadlineType dt ON d.DeadlineTypeID = dt.DeadlineTypeID
+                JOIN DeadlineStatus ds ON d.StatusID = ds.DeadlineStatusID
+                ORDER BY d.DeadlineDate DESC;
+            `;
+            const results = await dbAllAsync(query);
+            return res.status(200).json(results);
+        } catch (error) {
+            console.error("Error fetching case with deadlines:", error);
+            return res.status(500).json({ error: "Failed to fetch case data" });
+        }
+    }
+
     if (req.method === "GET") {
         const { type } = req.query;
 

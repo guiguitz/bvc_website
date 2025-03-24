@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import styles from "../styles/CaseForm.module.css";
+import styles from "../styles/CaseForm.css";
+import { validateCPF, validateEmail, validateRG, validatePhone } from "../../utils/validation.js";
 
 export function CaseForm() {
     const [formData, setFormData] = useState({

@@ -1,0 +1,96 @@
+/* Sidebar Container */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 220px; /* Expanded sidebar width */
+    background-color: #242d4c;
+    color: #efece3;
+    transition: width 0.3s ease;
+    z-index: 1000;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align content to the left */
+    padding-top: 10px;
+}
+
+/* Collapsed Sidebar */
+.sidebar.collapsed {
+    width: 70px; /* Keep button visible */
+    align-items: center;
+}
+
+/* Toggle Button */
+.toggle-button {
+    background: none;
+    border: none;
+    color: #efece3;
+    cursor: pointer;
+    font-size: 18px;
+    width: 50px; /* Keep button small */
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-left: 10px; /* Align to the left */
+}
+
+/* Keep the same button size when collapsed */
+.sidebar.collapsed .toggle-button {
+    width: 50px; /* Fixed width */
+    height: 50px; /* Fixed height */
+    margin-left: 0; /* Center in the collapsed sidebar */
+}
+
+/* Sidebar Links */
+.sidebar-links {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0 0; /* Adds space between toggle button and links */
+    width: 100%;
+}
+
+/* Sidebar Link Items */
+.sidebar-links li {
+    width: 100%;
+}
+
+/* Sidebar Links Styling */
+.sidebar-links a {
+    color: #efece3;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 5px;
+    transition: background 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Hover Effect Fix */
+.sidebar-links a:hover {
+    background-color: #050a30;
+}
+
+/* User Info Section */
+.user-info {
+    padding: 15px;
+    color: #c4c0b3;
+    font-size: 13px;
+    line-height: 1.4;
+    text-align: left;
+    border-top: 1px solid #c4c0b3;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: auto;
+}
+
+/* User Email Styling */
+.user-info .email {
+    font-size: 12px;
+    color: #efece3;
+}
