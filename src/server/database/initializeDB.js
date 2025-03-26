@@ -9,7 +9,6 @@ async function initializeDatabase() {
         console.log("Starting database initialization...");
         for (const statement of statements) {
             try {
-                console.log(`Executing: ${statement}`);
                 db.exec(statement);
             } catch (error) {
                 console.error(`Error executing statement: ${statement}`, error);
@@ -21,8 +20,7 @@ async function initializeDatabase() {
         console.error("Error initializing database:", error);
     } finally {
         try {
-            db.close(); // Close the database connection
-            console.log("Database connection closed.");
+            db.close();
         } catch (closeError) {
             console.error("Error closing the database connection:", closeError);
         }

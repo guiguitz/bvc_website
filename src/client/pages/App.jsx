@@ -1,10 +1,10 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Dashboard from "./Dashboard.js";
-import CasesTable from "./CasesTable.js";
-import CaseForm from "./CaseForm.js";
-import Finance from "./Finance.js";
-import Sidebar from "../components/Sidebar.js";
+import Dashboard from "./Dashboard.jsx";
+import CasesTable from "./CasesTable.jsx";
+import NewCase from "./NewCase.jsx";
+import Finance from "./Finance.jsx";
+import Sidebar from "../components/Sidebar.jsx";
 import "../styles/global.css";
 
 function App() {
@@ -16,7 +16,7 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/cases" element={<CasesTable />} />
-                        <Route path="/cases/new" element={<CaseForm />} />
+                        <Route path="/cases/new" element={<NewCase />} />
                         <Route path="/finance" element={<Finance />} />
                     </Routes>
                 </div>

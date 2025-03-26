@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import styles from "../styles/CaseForm.css";
+import styles from "../styles/NewCase.module.css";
 import { validateCPF, validateEmail, validateRG, validatePhone } from "../../utils/validation.js";
 
-export function CaseForm() {
+export function NewCase() {
     const [formData, setFormData] = useState({
         Name: "", CPF: "", RG: "", Address: "", Profession: "", Phone: "", Email: "",
         CivilStatus: "", BankDetails: "", BirthDate: "", JusticeScopeID: "",
@@ -16,6 +16,8 @@ export function CaseForm() {
     const [caseStatuses, setCaseStatuses] = useState([]);
     const [deadlineTypes, setDeadlineTypes] = useState([]);
     const [deadlineStatuses, setDeadlineStatuses] = useState([]);
+    const [feeTypes, setFeeTypes] = useState([]);
+    const [feeStatuses, setFeeStatuses] = useState([]);
     const [errors, setErrors] = useState({});
     const [deadlines, setDeadlines] = useState([{ PrazoTipo: "", PrazoData: "", PrazoStatus: "" }]);
     const [fees, setFees] = useState([{ HonorariosTipo: "", HonorariosValor: "", HonorariosStatus: "" }]);
@@ -24,11 +26,13 @@ export function CaseForm() {
         const fetchOptions = async () => {
             try {
                 const responses = await Promise.all([
-                    fetch("http://localhost:5000/api/options?type=justiceScopes"),
-                    fetch("http://localhost:5000/api/options?type=demandTypes"),
-                    fetch("http://localhost:5000/api/options?type=caseStatus"),
-                    fetch("http://localhost:5000/api/options?type=deadlineTypes"),
-                    fetch("http://localhost:5000/api/options?type=deadlineStatus")
+                    fetch("http://localhost:5000/api/databaseSelect?type=justiceScopes"),
+                    fetch("http://localhost:5000/api/databaseSelect?type=demandTypes"),
+                    fetch("http://localhost:5000/api/databaseSelect?type=caseStatuses"),
+                    fetch("http://localhost:5000/api/databaseSelect?type=deadlineTypes"),
+                    fetch("http://localhost:5000/api/databaseSelect?type=deadlineStatuses"),
+                    fetch("http://localhost:5000/api/databaseSelect?type=feeTypes"),
+                    fetch("http://localhost:5000/api/databaseSelect?type=feeStatuses")
                 ]);
 
                 const data = await Promise.all(responses.map(async (res) => {
@@ -49,22 +53,28 @@ export function CaseForm() {
                     demandTypesData,
                     caseStatusesData,
                     deadlineTypesData,
-                    deadlineStatusesData
+                    deadlineStatusesData,
+                    feeTypesData,
+                    feeStatusesData
                 ] = data;
 
-                console.log("Fetched justiceScopes:", justiceScopesData);
-                console.log("Fetched demandTypes:", demandTypesData);
-                console.log("Fetched caseStatuses:", caseStatusesData);
-                console.log("Fetched deadlineTypes:", deadlineTypesData);
-                console.log("Fetched deadlineStatuses:", deadlineStatusesData);
+                console.log("[Frontend] Fetched justiceScopes:", justiceScopesData);
+                console.log("[Frontend] Fetched demandTypes:", demandTypesData);
+                console.log("[Frontend] Fetched caseStatuses:", caseStatusesData);
+                console.log("[Frontend] Fetched deadlineTypes:", deadlineTypesData);
+                console.log("[Frontend] Fetched deadlineStatuses:", deadlineStatusesData);
+                console.log("[Frontend] Fetched feeTypes:", feeTypesData);
+                console.log("[Frontend] Fetched feeStatuses:", feeStatusesData);
 
                 setJusticeScopes(justiceScopesData, "JusticeScopeID");
                 setDemandTypes(demandTypesData, "DemandTypeID");
                 setCaseStatuses(caseStatusesData, "CaseStatusID");
                 setDeadlineTypes(deadlineTypesData, "DeadlineTypeID");
                 setDeadlineStatuses(deadlineStatusesData, "DeadlineStatusID");
+                setFeeTypes(feeTypesData);
+                setFeeStatuses(feeStatusesData);
             } catch (error) {
-                console.error("Erro ao carregar opções:", error);
+                console.error("[Frontend] Error loading options:", error);
             }
         };
 
@@ -138,7 +148,7 @@ export function CaseForm() {
     };
 
     const handleSave = async () => {
-        console.log("Form data before submission:", formData); // Log form data
+        console.log("[Frontend] Form data before submission:", formData); // Log form data
 
         if (Object.keys(errors).length > 0) {
             alert("Por favor, corrija os erros antes de salvar.");
@@ -148,13 +158,13 @@ export function CaseForm() {
         const formDataWithFees = { ...formData, deadlines, fees };
 
         try {
-            const response = await fetch("http://localhost:5000/api/cases", {
+            const response = await fetch("http://localhost:5000/api/saveCase", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formDataWithFees),
             });
 
-            console.log("Response status:", response.status);
+            console.log("[Frontend] Response status:", response.status);
 
             if (response.ok) {
                 const result = await response.json();
@@ -182,7 +192,7 @@ export function CaseForm() {
                 }
             }
         } catch (error) {
-            console.error("Erro ao salvar o caso:", error); // Log unexpected errors
+            console.error("[Frontend] Erro ao salvar o caso:", error); // Log unexpected errors
             alert("Erro ao salvar o caso.");
         }
     };
@@ -329,12 +339,16 @@ export function CaseForm() {
                         <div key={index} className={styles.feeBox}>
                             <div className={styles.grid}>
                                 <label>Tipo:
-                                    <input
-                                        type="text"
+                                    <select
                                         name="HonorariosTipo"
                                         value={fee.HonorariosTipo}
                                         onChange={(e) => handleFeeChange(index, e)}
-                                    />
+                                    >
+                                        <option value="">Selecione um tipo</option>
+                                        {feeTypes.map((type) => (
+                                            <option key={type.FeeTypeID} value={type.FeeTypeID}>{type.TypeName}</option>
+                                        ))}
+                                    </select>
                                 </label>
                                 <label>Valor:
                                     <input
@@ -345,12 +359,16 @@ export function CaseForm() {
                                     />
                                 </label>
                                 <label>Status:
-                                    <input
-                                        type="text"
+                                    <select
                                         name="HonorariosStatus"
                                         value={fee.HonorariosStatus}
                                         onChange={(e) => handleFeeChange(index, e)}
-                                    />
+                                    >
+                                        <option value="">Selecione um status</option>
+                                        {feeStatuses.map((status) => (
+                                            <option key={status.FeeStatusID} value={status.FeeStatusID}>{status.StatusName}</option>
+                                        ))}
+                                    </select>
                                 </label>
                             </div>
                             <div className={styles.feeActions}>
@@ -375,4 +393,4 @@ export function CaseForm() {
     );
 }
 
-export default CaseForm;
+export default NewCase;

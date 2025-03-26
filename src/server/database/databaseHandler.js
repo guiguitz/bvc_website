@@ -1,16 +1,16 @@
 import { db } from "../database/connection.js";
 import { promisify } from "util";
-import fs from "fs";
-import path from "path";
 
 const dbAllAsync = promisify(db.all.bind(db));
 
 const TABLES = {
-    justiceScopes: "JusticeScope",
-    demandTypes: "DemandType",
-    caseStatus: "CaseStatus",
-    deadlineTypes: "DeadlineType",
-    deadlineStatus: "DeadlineStatus",
+    justiceScopes: "JusticeScopes",
+    demandTypes: "DemandTypes",
+    caseStatuses: "CaseStatuses",
+    deadlineTypes: "DeadlineTypes",
+    deadlineStatuses: "DeadlineStatuses",
+    feeTypes: "FeeTypes",
+    feeStatuses: "FeeStatuses",
 };
 
 export default async function handler(req, res) {
@@ -18,129 +18,131 @@ export default async function handler(req, res) {
     res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,POST");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    console.log("Received request:", { method: req.method, url: req.url }); // Log method and URL
+    console.log("[Backend] Received request:", {
+        method: req.method,
+        url: req.url,
+        query: req.query,
+    });
 
     if (req.method === "OPTIONS") {
         return res.status(200).end();
     }
 
-    if (req.method === "GET" && req.query.test === "db") {
-        try {
-            const testQuery = await dbAllAsync("SELECT name FROM sqlite_master WHERE type='table';");
-            console.log("Database tables:", testQuery);
-            return res.status(200).json({ message: "Database is accessible", tables: testQuery });
-        } catch (error) {
-            console.error("Database connection error:", error);
-            return res.status(500).json({ error: "Database connection failed" });
-        }
-    }
-
-    if (req.method === "POST" && req.url.endsWith("/api/cases")) {
-        try {
-            console.log("Request body:", req.body); // Log request body
-            const caseData = req.body;
-
-            // Validate required fields
-            const requiredFields = [
-                "Name", "CPF", "RG", "Address", "JusticeScopeID", "DemandTypeID", "CaseStatusID", "ProcessNumber"
-            ];
-            const missingFields = requiredFields.filter(field => !caseData[field] || caseData[field].trim() === "");
-            if (missingFields.length > 0) {
-                console.error("Missing required fields:", missingFields);
-                return res.status(400).json({ error: `Missing required fields: ${missingFields.join(", ")}` });
-            }
-
-            // Create directory in <cwd>/processos
-            const processDir = path.resolve("processos", caseData.ProcessNumber);
-            if (!fs.existsSync(processDir)) {
-                fs.mkdirSync(processDir, { recursive: true });
-                console.log(`Directory created at: ${processDir}`);
-            }
-
-            const query = `
-                INSERT INTO Cases (
-                    Name, CPF, RG, Address, Profession, Phone, Email, CivilStatus, BankDetails, BirthDate,
-                    JusticeScopeID, DemandTypeID, Organization, CaseDescription, ProcessNumber, Observations,
-                    StatusID
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `;
-            const params = [
-                caseData.Name, caseData.CPF, caseData.RG, caseData.Address, caseData.Profession, caseData.Phone,
-                caseData.Email, caseData.CivilStatus, caseData.BankDetails, caseData.BirthDate,
-                caseData.JusticeScopeID, caseData.DemandTypeID, caseData.Organization, caseData.CaseDescription,
-                caseData.ProcessNumber, caseData.Observations, caseData.CaseStatusID
-            ];
-
-            console.log("Executing query:", query);
-            console.log("With parameters:", params);
-
-            await new Promise((resolve, reject) => {
-                db.run(query, params, (err) => {
-                    if (err) reject(err);
-                    else resolve();
-                });
-            });
-
-            console.log("Case saved successfully.");
-            return res.status(201).json({ message: "Case saved successfully" });
-        } catch (error) {
-            console.error("Error saving case:", error.message);
-            console.error("Stack trace:", error.stack);
-            if (!res.headersSent) {
-                return res.status(500).json({ error: "Failed to save case" });
-            }
-        }
-    }
-
-    if (req.method === "GET" && req.url === "/api/cases-with-deadlines") {
-        try {
-            const query = `
-                SELECT
-                    c.Name AS NomeDoAutor,
-                    c.ProcessNumber AS NumeroProcesso,
-                    dt.TypeName AS TipoPrazo,
-                    d.DeadlineDate AS Prazo,
-                    ds.StatusName AS Status,
-                    c.Observations AS Observacoes
-                FROM Cases c
-                JOIN Deadlines d ON c.CaseID = d.CaseID
-                JOIN DeadlineType dt ON d.DeadlineTypeID = dt.DeadlineTypeID
-                JOIN DeadlineStatus ds ON d.StatusID = ds.DeadlineStatusID
-                ORDER BY d.DeadlineDate DESC;
-            `;
-            const results = await dbAllAsync(query);
-            return res.status(200).json(results);
-        } catch (error) {
-            console.error("Error fetching case with deadlines:", error);
-            return res.status(500).json({ error: "Failed to fetch case data" });
-        }
-    }
-
     if (req.method === "GET") {
         const { type } = req.query;
 
-        console.log("Received request for type:", type);
-
-        if (!type || !TABLES[type]) {
-            console.error("Invalid or missing 'type' query parameter.");
+        if (!type || (type !== "allCases" && !TABLES[type])) {
+            console.error("[Backend] Invalid or missing 'type' query parameter.");
             return res.status(400).json({ error: "Invalid or missing 'type' query parameter." });
         }
 
-        const tableName = TABLES[type];
-        try {
-            console.log(`Fetching data from table: ${tableName}`);
-            const rows = await dbAllAsync(`SELECT DISTINCT * FROM ${tableName}`, []);
-            console.log(`Fetched rows from ${tableName}:`, rows);
+        if (type === "allCases") {
+            try {
+                // Fetch all cases
+                const casesQuery = `
+                    SELECT
+                        Cases.CaseID,
+                        Cases.Name,
+                        Cases.CPF,
+                        Cases.RG,
+                        Cases.Address,
+                        Cases.Profession,
+                        Cases.Phone,
+                        Cases.Email,
+                        Cases.CivilStatus,
+                        Cases.BankDetails,
+                        Cases.BirthDate,
+                        Cases.Organization,
+                        Cases.CaseDescription,
+                        Cases.ProcessNumber,
+                        Cases.Observation,
+                        JusticeScopes.ScopeName AS JusticeScopeName,
+                        DemandTypes.DemandName AS DemandTypeName,
+                        CaseStatuses.StatusName AS CaseStatusName
+                    FROM Cases
+                    LEFT JOIN JusticeScopes ON Cases.JusticeScopeID = JusticeScopes.JusticeScopeID
+                    LEFT JOIN DemandTypes ON Cases.DemandTypeID = DemandTypes.DemandTypeID
+                    LEFT JOIN CaseStatuses ON Cases.StatusID = CaseStatuses.CaseStatusID`;
 
-            if (!rows || rows.length === 0) {
-                console.warn(`No records found in ${tableName}.`);
-                return res.status(404).json({ error: `No records found in ${tableName}.` });
+                const cases = await dbAllAsync(casesQuery);
+
+                // Fetch fees with names
+                const feesQuery = `
+                    SELECT
+                        Fees.CaseID,
+                        FeeTypes.TypeName AS FeeType,
+                        Fees.FeeValue,
+                        FeeStatuses.StatusName AS FeeStatus
+                    FROM Fees
+                    LEFT JOIN FeeTypes ON Fees.FeeTypeID = FeeTypes.FeeTypeID
+                    LEFT JOIN FeeStatuses ON Fees.FeeStatusID = FeeStatuses.FeeStatusID`;
+                const fees = await dbAllAsync(feesQuery);
+
+                // Fetch deadlines with names
+                const deadlinesQuery = `
+                    SELECT
+                        Deadlines.CaseID,
+                        DeadlineTypes.TypeName AS DeadlineType,
+                        Deadlines.DeadlineDate,
+                        DeadlineStatuses.StatusName AS DeadlineStatus
+                    FROM Deadlines
+                    LEFT JOIN DeadlineTypes ON Deadlines.DeadlineTypeID = DeadlineTypes.DeadlineTypeID
+                    LEFT JOIN DeadlineStatuses ON Deadlines.StatusID = DeadlineStatuses.DeadlineStatusID`;
+                const deadlines = await dbAllAsync(deadlinesQuery);
+
+                // Group fees and deadlines by CaseID
+                const feesByCase = fees.reduce((acc, fee) => {
+                    acc[fee.CaseID] = acc[fee.CaseID] || [];
+                    acc[fee.CaseID].push({
+                        FeeType: fee.FeeType,
+                        FeeValue: fee.FeeValue,
+                        FeeStatus: fee.FeeStatus,
+                    });
+                    return acc;
+                }, {});
+
+                const deadlinesByCase = deadlines.reduce((acc, deadline) => {
+                    acc[deadline.CaseID] = acc[deadline.CaseID] || [];
+                    acc[deadline.CaseID].push({
+                        DeadlineType: deadline.DeadlineType,
+                        DeadlineDate: deadline.DeadlineDate,
+                        DeadlineStatus: deadline.DeadlineStatus,
+                    });
+                    return acc;
+                }, {});
+
+                // Add Fees and Deadlines arrays to each case
+                const results = cases.map((caseItem) => ({
+                    ...caseItem,
+                    Fees: feesByCase[caseItem.CaseID] || [],
+                    Deadlines: deadlinesByCase[caseItem.CaseID] || [],
+                }));
+
+                console.log(`[Backend] Responding with ${results.length} cases.`);
+                return res.status(200).json(results);
+            } catch (error) {
+                console.error("[Backend] Error fetching cases with fees and deadlines:", error);
+                return res.status(500).json({ error: "Failed to fetch data" });
+            }
+        }
+
+        // Query for reference table data
+        const tableName = TABLES[type];
+        const query = `SELECT * FROM ${tableName}`;
+        try {
+            console.log(`[Backend] Executing query: ${query}`);
+            const results = await dbAllAsync(query);
+
+            if (!results || results.length === 0) {
+                console.warn(`[Backend] No records found for query: ${query}`);
+                return res.status(404).json({ error: `No records found.` });
             }
 
-            res.status(200).json(rows);
+            console.log(`[Backend] Found ${results.length} records in ${tableName}`);
+            return res.status(200).json(results);
         } catch (error) {
-            console.error(`Error fetching data from ${tableName}:`, error);
-            res.status(500).json({ error: `Error fetching data from ${tableName}` });
+            console.error(`[Backend] Error executing query: ${query}`, error);
+            return res.status(500).json({ error: "Failed to fetch data" });
         }
     } else {
         res.status(405).json({ error: "Method not allowed" });
