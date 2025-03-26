@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS Cases (
     Organization TEXT,
     CaseDescription TEXT,
     ProcessNumber TEXT UNIQUE,
-    Observation TEXT,
     JusticeScopeID INTEGER NOT NULL,
     DemandTypeID INTEGER NOT NULL,
     StatusID INTEGER NOT NULL,
@@ -110,11 +109,11 @@ INSERT OR IGNORE INTO FeeStatuses (StatusName) VALUES
 ('Pago'), ('Pendente');
 
 -- Insert sample data into Cases for debugging purposes
-INSERT OR IGNORE INTO Cases (Name, CPF, RG, Address, Profession, Phone, Email, CivilStatus, BankDetails, BirthDate, Organization, CaseDescription, ProcessNumber, Observation, JusticeScopeID, DemandTypeID, StatusID)
+INSERT OR IGNORE INTO Cases (Name, CPF, RG, Address, Profession, Phone, Email, CivilStatus, BankDetails, BirthDate, Organization, CaseDescription, ProcessNumber, JusticeScopeID, DemandTypeID, StatusID)
 VALUES
-('John Doe', '123.456.789-00', 'MG-12.345.678', '123 Main St, Cityville', 'Engineer', '555-1234', 'johndoe@example.com', 'Single', 'Bank XYZ - Account 12345', '1985-06-15', 'Company A', 'Case regarding property dispute', 'PN-001', 'Urgent case', 1, 1, 1),
-('Jane Smith', '987.654.321-00', 'SP-98.765.432', '456 Elm St, Townsville', 'Doctor', '555-5678', 'janesmith@example.com', 'Married', 'Bank ABC - Account 67890', '1990-03-22', 'Company B', 'Case regarding medical malpractice', 'PN-002', 'Requires follow-up', 2, 2, 1),
-('Alice Johnson', '111.222.333-44', 'RJ-11.223.344', '789 Oak St, Villagetown', 'Teacher', '555-9012', 'alicejohnson@example.com', 'Divorced', 'Bank DEF - Account 11223', '1978-11-05', 'Company C', 'Case regarding labor rights', 'PN-003', 'Pending documents', 3, 3, 2);
+('John Doe', '123.456.789-00', 'MG-12.345.678', '123 Main St, Cityville', 'Engineer', '555-1234', 'johndoe@example.com', 'Single', 'Bank XYZ - Account 12345', '1985-06-15', 'Company A', 'Case regarding property dispute', 'PN-001', 1, 1, 1),
+('Jane Smith', '987.654.321-00', 'SP-98.765.432', '456 Elm St, Townsville', 'Doctor', '555-5678', 'janesmith@example.com', 'Married', 'Bank ABC - Account 67890', '1990-03-22', 'Company B', 'Case regarding medical malpractice', 'PN-002', 2, 2, 1),
+('Alice Johnson', '111.222.333-44', 'RJ-11.223.344', '789 Oak St, Villagetown', 'Teacher', '555-9012', 'alicejohnson@example.com', 'Divorced', 'Bank DEF - Account 11223', '1978-11-05', 'Company C', 'Case regarding labor rights', 'PN-003', 3, 3, 2);
 
 -- Insert sample data into Deadlines for debugging purposes
 INSERT OR IGNORE INTO Deadlines (CaseID, DeadlineTypeID, DeadlineDate, StatusID)

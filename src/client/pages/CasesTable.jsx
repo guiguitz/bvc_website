@@ -1,5 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import '../styles/CasesTable.css';
 import { FaSort, FaSortUp, FaSortDown, FaFilter } from 'react-icons/fa';
 import { validateCPF, validateEmail, validateRG, validatePhone } from '../../utils/validation.js';
@@ -35,15 +35,23 @@ const CasesTable = () => {
     if (searchTerm) {
       const lower = searchTerm.toLowerCase();
       temp = temp.filter(c =>
-        Object.values(c).some(val =>
-          typeof val === 'string' && val.toLowerCase().includes(lower)
-        )
+      JSON.stringify(c).toLowerCase().includes(lower)
       );
     }
 
     Object.keys(filters).forEach((key) => {
       if (filters[key]) {
-        temp = temp.filter(c => c[key] === filters[key]);
+        if (key === 'Deadlines') {
+          temp = temp.filter(c =>
+            c.Deadlines.some(d => d.DeadlineStatus !== 'Entregue' && d.DeadlineDate === filters[key])
+          );
+        } else if (key === 'Fees') {
+          temp = temp.filter(c =>
+            c.Fees.some(f => f.FeeStatus.toLowerCase() !== 'pago' && f.FeeValue.toString() === filters[key])
+          );
+        } else {
+          temp = temp.filter(c => c[key] === filters[key]);
+        }
       }
     });
 
@@ -53,10 +61,24 @@ const CasesTable = () => {
 
   useEffect(() => {
     const escListener = (e) => {
-      if (e.key === 'Escape') setSelectedCase(null);
+      if (e.key === 'Escape') {
+        setSelectedCase(null);
+        setActiveFilterDropdown(null);
+      }
     };
     document.addEventListener('keydown', escListener);
     return () => document.removeEventListener('keydown', escListener);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.filter-dropdown') && !e.target.closest('.filter-btn')) {
+        setActiveFilterDropdown(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   const getSortedCases = () => {
@@ -65,6 +87,16 @@ const CasesTable = () => {
       sortable.sort((a, b) => {
         let valA = a[sortConfig.key];
         let valB = b[sortConfig.key];
+
+        // Handle specific cases for custom fields
+        if (sortConfig.key === 'Deadlines') {
+          valA = a.Deadlines.filter(d => d.DeadlineStatus !== 'Entregue').length;
+          valB = b.Deadlines.filter(d => d.DeadlineStatus !== 'Entregue').length;
+        } else if (sortConfig.key === 'Fees') {
+          valA = a.Fees.filter(f => f.FeeStatus.toLowerCase() !== 'pago').reduce((sum, f) => sum + f.FeeValue, 0);
+          valB = b.Fees.filter(f => f.FeeStatus.toLowerCase() !== 'pago').reduce((sum, f) => sum + f.FeeValue, 0);
+        }
+
         if (typeof valA === 'string') valA = valA.toLowerCase();
         if (typeof valB === 'string') valB = valB.toLowerCase();
         if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
@@ -88,26 +120,58 @@ const CasesTable = () => {
     return sortConfig.direction === 'asc' ? <FaSortUp className="sort-icon" /> : <FaSortDown className="sort-icon" />;
   };
 
+  const renderFilterIcon = (key) => {
+    return (
+      <FaFilter className={`filter-icon ${filters[key] ? 'active' : ''}`} />
+    );
+  };
+
   const handleFilterChange = (key, value) => {
     setFilters({ ...filters, [key]: value });
     setActiveFilterDropdown(null);
   };
 
-  const toggleFilterDropdown = (e, key) => {
-    e.stopPropagation();
-    setActiveFilterDropdown(activeFilterDropdown === key ? null : key);
-  };
+  const renderFilterOptions = (key, buttonRef) => {
+    let uniqueValues;
+    if (key === 'Deadlines') {
+      uniqueValues = [...new Set(cases.flatMap(c =>
+        c.Deadlines.filter(d => d.DeadlineStatus !== 'Entregue').map(d => d.DeadlineDate)
+      ))];
+    } else if (key === 'Fees') {
+      uniqueValues = [...new Set(cases.flatMap(c =>
+        c.Fees.filter(f => f.FeeStatus.toLowerCase() !== 'pago').map(f => f.FeeValue.toString())
+      ))];
+    } else {
+      uniqueValues = [...new Set(cases.map((c) => c[key]))];
+    }
 
-  const renderFilterOptions = (key) => {
-    const uniqueValues = [...new Set(cases.map((c) => c[key]))];
-    return (
-      <div className="filter-dropdown">
+    const dropdownContent = (
+      <div
+        className="filter-dropdown"
+        style={{
+          position: 'absolute',
+          top: buttonRef?.getBoundingClientRect().bottom + window.scrollY,
+          left: buttonRef?.getBoundingClientRect().left + window.scrollX,
+          zIndex: 1000,
+        }}
+      >
         <div onClick={() => handleFilterChange(key, '')}>Todos</div>
         {uniqueValues.map((val, idx) => (
           <div key={idx} onClick={() => handleFilterChange(key, val)}>{val}</div>
         ))}
       </div>
     );
+
+    return ReactDOM.createPortal(
+      dropdownContent,
+      document.body
+    );
+  };
+
+  const toggleFilterDropdown = (e, key) => {
+    e.stopPropagation();
+    const buttonRef = e.target.closest('.filter-btn');
+    setActiveFilterDropdown(activeFilterDropdown === key ? null : { key, buttonRef });
   };
 
   const handleInputChange = (field, value) => {
@@ -176,24 +240,32 @@ const CasesTable = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <table className="cases-table">
-        <thead>
+      <thead>
           <tr>
-            {['Name', 'ProcessNumber', 'CaseStatusName'].map(key => (
-              <th key={key} onClick={() => handleSort(key)}>
-                {key === 'Name' ? 'Nome' : key === 'ProcessNumber' ? 'Número do Processo' : 'Status'}
-  <button className="filter-btn" onClick={(e) => toggleFilterDropdown(e, key)}><FaFilter /></button>
-                {activeFilterDropdown === key && renderFilterOptions(key)}
+            {['Name', 'ProcessNumber', 'CaseStatusName', 'Deadlines', 'CaseDescription', 'Fees'].map(key => (
+              <th key={key}>
+                <div className="header-content">
+                  {key === 'Name' ? 'Nome' :
+                    key === 'ProcessNumber' ? 'Número do Processo' :
+                      key === 'CaseStatusName' ? 'Status' :
+                        key === 'Deadlines' ? 'Prazos' :
+                          key === 'CaseDescription' ? 'Descrição' : 'Honorários'}
+
+                  <button className="filter-btn" onClick={(e) => toggleFilterDropdown(e, key)}>
+                    {renderFilterIcon(key)}
+                  </button>
+                  <button className="sort-icon-btn" onClick={() => handleSort(key)}>
+                    {renderSortIcon(key)}
+                  </button>
+                </div>
+                {activeFilterDropdown?.key === key && renderFilterOptions(key, activeFilterDropdown.buttonRef)}
               </th>
             ))}
-            <th>Prazos Pendentes</th>
-            <th>Honorários Recebidos</th>
-            <th>Honorários Pendentes</th>
           </tr>
         </thead>
         <tbody>
           {currentCases.map((c) => {
             const pendentes = c.Deadlines.filter(d => d.DeadlineStatus !== 'Entregue').map(d => d.DeadlineDate);
-            const pagos = c.Fees.filter(f => f.FeeStatus.toLowerCase() === 'pago').reduce((sum, f) => sum + f.FeeValue, 0);
             const naoPagos = c.Fees.filter(f => f.FeeStatus.toLowerCase() !== 'pago').reduce((sum, f) => sum + f.FeeValue, 0);
 
             return (
@@ -202,7 +274,7 @@ const CasesTable = () => {
                 <td>{c.ProcessNumber}</td>
                 <td>{c.CaseStatusName}</td>
                 <td>{renderList(pendentes)}</td>
-                <td>R$ {pagos}</td>
+                <td>{c.CaseDescription}</td>
                 <td>R$ {naoPagos}</td>
               </tr>
             );
@@ -235,7 +307,6 @@ const CasesTable = () => {
             {renderEditableField("Escopo da Justiça:", "JusticeScopeName")}
             {renderEditableField("Tipo de Demanda:", "DemandTypeName")}
             {renderEditableField("Descrição:", "CaseDescription")}
-            {renderEditableField("Observações:", "Observation")}
 
             <h3>Honorários</h3>
             {renderList(selectedCase.Fees.map(f => `${f.FeeType}: R$ ${f.FeeValue} - ${f.FeeStatus}`))}

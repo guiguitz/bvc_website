@@ -55,7 +55,6 @@ export default async function handler(req, res) {
                         Cases.Organization,
                         Cases.CaseDescription,
                         Cases.ProcessNumber,
-                        Cases.Observation,
                         JusticeScopes.ScopeName AS JusticeScopeName,
                         DemandTypes.DemandName AS DemandTypeName,
                         CaseStatuses.StatusName AS CaseStatusName
