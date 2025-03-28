@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import '../styles/CasesTable.css';
 import { FaSort, FaSortUp, FaSortDown, FaFilter } from 'react-icons/fa';
-import { validateCPF, validateEmail, validateRG, validatePhone } from '../../utils/validation.js';
+import CaseForm from "../components/CaseForm.jsx";
 
 const CasesTable = () => {
   const [cases, setCases] = useState([]);
@@ -12,8 +12,6 @@ const CasesTable = () => {
   const [sortConfig, setSortConfig] = useState({ key: '', direction: '' });
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCase, setSelectedCase] = useState(null);
-  const [validationErrors, setValidationErrors] = useState({});
-  const [canSave, setCanSave] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [activeFilterDropdown, setActiveFilterDropdown] = useState(null);
   const casesPerPage = 5;
@@ -35,7 +33,7 @@ const CasesTable = () => {
     if (searchTerm) {
       const lower = searchTerm.toLowerCase();
       temp = temp.filter(c =>
-      JSON.stringify(c).toLowerCase().includes(lower)
+        JSON.stringify(c).toLowerCase().includes(lower)
       );
     }
 
@@ -174,38 +172,6 @@ const CasesTable = () => {
     setActiveFilterDropdown(activeFilterDropdown === key ? null : { key, buttonRef });
   };
 
-  const handleInputChange = (field, value) => {
-    const updatedCase = { ...selectedCase, [field]: value };
-    setSelectedCase(updatedCase);
-
-    let error = '';
-    if (field === 'CPF' && !validateCPF(value)) error = 'CPF inválido';
-    if (field === 'Email' && !validateEmail(value)) error = 'Email inválido';
-    if (field === 'RG' && !validateRG(value)) error = 'RG inválido';
-    if (field === 'Phone' && !validatePhone(value)) error = 'Telefone inválido';
-
-    const updatedErrors = { ...validationErrors, [field]: error };
-    setValidationErrors(updatedErrors);
-
-    const allValid = Object.values(updatedErrors).every(e => !e);
-    setCanSave(allValid);
-  };
-
-  const renderEditableField = (label, field) => (
-    <div className="field-block">
-      <label><strong>{label}</strong></label>
-      <input
-        type="text"
-        value={selectedCase[field] || ''}
-        onChange={(e) => handleInputChange(field, e.target.value)}
-        className={`modal-input ${validationErrors[field] ? 'error' : ''}`}
-      />
-      {validationErrors[field] && (
-        <div className="error-text">{validationErrors[field]}</div>
-      )}
-    </div>
-  );
-
   const sortedCases = getSortedCases();
   const indexOfLastCase = currentPage * casesPerPage;
   const indexOfFirstCase = indexOfLastCase - casesPerPage;
@@ -240,7 +206,7 @@ const CasesTable = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <table className="cases-table">
-      <thead>
+        <thead>
           <tr>
             {['Name', 'ProcessNumber', 'CaseStatusName', 'Deadlines', 'CaseDescription', 'Fees'].map(key => (
               <th key={key}>
@@ -292,32 +258,17 @@ const CasesTable = () => {
         <div className="modal-overlay" onClick={() => setSelectedCase(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             {showSuccess && (<div className="success-banner">Alterações salvas com sucesso!</div>)}
-            <h2>Detalhes do Caso</h2>
-            {renderEditableField("Nome:", "Name")}
-            {renderEditableField("CPF:", "CPF")}
-            {renderEditableField("RG:", "RG")}
-            {renderEditableField("Email:", "Email")}
-            {renderEditableField("Telefone:", "Phone")}
-            {renderEditableField("Endereço:", "Address")}
-            {renderEditableField("Organização:", "Organization")}
-            {renderEditableField("Profissão:", "Profession")}
-            {renderEditableField("Estado Civil:", "CivilStatus")}
-            {renderEditableField("Data de Nascimento:", "BirthDate")}
-            {renderEditableField("Banco:", "BankDetails")}
-            {renderEditableField("Escopo da Justiça:", "JusticeScopeName")}
-            {renderEditableField("Tipo de Demanda:", "DemandTypeName")}
-            {renderEditableField("Descrição:", "CaseDescription")}
-
-            <h3>Honorários</h3>
-            {renderList(selectedCase.Fees.map(f => `${f.FeeType}: R$ ${f.FeeValue} - ${f.FeeStatus}`))}
-
-            <h3>Prazos</h3>
-            {renderList(selectedCase.Deadlines.map(d => `${d.DeadlineType} - ${d.DeadlineDate} - ${d.DeadlineStatus}`))}
-
-            <div className="modal-buttons">
-              <button onClick={() => setSelectedCase(null)}>Fechar</button>
-              <button onClick={handleSave} disabled={!canSave} className="save-btn">Salvar Alterações</button>
-            </div>
+            <CaseForm
+              formData={selectedCase}
+              setFormData={setSelectedCase}
+              deadlines={selectedCase.Deadlines || []}
+              setDeadlines={updated => setSelectedCase({ ...selectedCase, Deadlines: updated })}
+              fees={selectedCase.Fees || []}
+              setFees={updated => setSelectedCase({ ...selectedCase, Fees: updated })}
+              onSubmit={handleSave}
+              submitText="Salvar Alterações"
+              showStatusDropdown={false}
+            />
           </div>
         </div>
       )}

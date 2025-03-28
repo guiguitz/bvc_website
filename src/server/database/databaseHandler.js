@@ -55,9 +55,9 @@ export default async function handler(req, res) {
                         Cases.Organization,
                         Cases.CaseDescription,
                         Cases.ProcessNumber,
-                        JusticeScopes.ScopeName AS JusticeScopeName,
-                        DemandTypes.DemandName AS DemandTypeName,
-                        CaseStatuses.StatusName AS CaseStatusName
+                        JusticeScopes.ScopeName AS JusticeScope,
+                        DemandTypes.DemandName AS DemandType,
+                        CaseStatuses.StatusName AS CaseStatus
                     FROM Cases
                     LEFT JOIN JusticeScopes ON Cases.JusticeScopeID = JusticeScopes.JusticeScopeID
                     LEFT JOIN DemandTypes ON Cases.DemandTypeID = DemandTypes.DemandTypeID
@@ -117,7 +117,7 @@ export default async function handler(req, res) {
                     Deadlines: deadlinesByCase[caseItem.CaseID] || [],
                 }));
 
-                console.log(`[Backend] Responding with ${results.length} cases.`);
+                console.log("[Backend] Resonse:", JSON.stringify(results, null, 2));
                 return res.status(200).json(results);
             } catch (error) {
                 console.error("[Backend] Error fetching cases with fees and deadlines:", error);
@@ -137,7 +137,7 @@ export default async function handler(req, res) {
                 return res.status(404).json({ error: `No records found.` });
             }
 
-            console.log(`[Backend] Found ${results.length} records in ${tableName}`);
+            console.log("[Backend] Resonse:", JSON.stringify(results, null, 2));
             return res.status(200).json(results);
         } catch (error) {
             console.error(`[Backend] Error executing query: ${query}`, error);

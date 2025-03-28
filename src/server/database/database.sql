@@ -111,9 +111,13 @@ INSERT OR IGNORE INTO FeeStatuses (StatusName) VALUES
 -- Insert sample data into Cases for debugging purposes
 INSERT OR IGNORE INTO Cases (Name, CPF, RG, Address, Profession, Phone, Email, CivilStatus, BankDetails, BirthDate, Organization, CaseDescription, ProcessNumber, JusticeScopeID, DemandTypeID, StatusID)
 VALUES
-('John Doe', '123.456.789-00', 'MG-12.345.678', '123 Main St, Cityville', 'Engineer', '555-1234', 'johndoe@example.com', 'Single', 'Bank XYZ - Account 12345', '1985-06-15', 'Company A', 'Case regarding property dispute', 'PN-001', 1, 1, 1),
-('Jane Smith', '987.654.321-00', 'SP-98.765.432', '456 Elm St, Townsville', 'Doctor', '555-5678', 'janesmith@example.com', 'Married', 'Bank ABC - Account 67890', '1990-03-22', 'Company B', 'Case regarding medical malpractice', 'PN-002', 2, 2, 1),
-('Alice Johnson', '111.222.333-44', 'RJ-11.223.344', '789 Oak St, Villagetown', 'Teacher', '555-9012', 'alicejohnson@example.com', 'Divorced', 'Bank DEF - Account 11223', '1978-11-05', 'Company C', 'Case regarding labor rights', 'PN-003', 3, 3, 2);
+('John Doe', '123.456.789-00', 'MG-12.345.678', '123 Main St, Cityville', 'Engineer', '555-1234', 'johndoe@example.com', 'Single', 'Bank XYZ - Account 12345', '1985-06-15', 'Polícia Federal', 'Case regarding property dispute', 'PN-001', 1, 1, 1),
+('Jane Smith', '987.654.321-00', 'SP-98.765.432', '456 Elm St, Townsville', 'Doctor', '555-5678', 'janesmith@example.com', 'Married', 'Bank ABC - Account 67890', '1990-03-22', 'Polícia Federal', 'Case regarding medical malpractice', 'PN-002', 2, 2, 1),
+('Alice Johnson', '111.222.333-44', 'RJ-11.223.344', '789 Oak St, Villagetown', 'Teacher', '555-9012', 'alicejohnson@example.com', 'Divorced', 'Bank DEF - Account 11223', '1978-11-05', 'Polícia Federal', 'Case regarding labor rights', 'PN-003', 3, 3, 2),
+('Carlos Silva', '222.333.444-55', 'SP-22.334.455', '101 Pine St, Metropolis', 'Lawyer', '555-2345', 'carlossilva@example.com', 'Married', 'Bank GHI - Account 33445', '1980-02-10', 'Ministério Público', 'Case regarding contract dispute', 'PN-004', 4, 1, 1),
+('Maria Oliveira', '333.444.555-66', 'RJ-33.445.566', '202 Maple St, Capital City', 'Architect', '555-3456', 'mariaoliveira@example.com', 'Single', 'Bank JKL - Account 44556', '1992-07-19', 'Defensoria Pública', 'Case regarding environmental issues', 'PN-005', 5, 2, 2),
+('Pedro Santos', '444.555.666-77', 'MG-44.556.677', '303 Birch St, Smalltown', 'Accountant', '555-4567', 'pedrosantos@example.com', 'Widowed', 'Bank MNO - Account 55667', '1975-09-30', 'Tribunal de Justiça', 'Case regarding tax evasion', 'PN-006', 6, 3, 1),
+('Ana Costa', '555.666.777-88', 'BA-55.667.788', '404 Cedar St, Bigcity', 'Nurse', '555-5678', 'anacosta@example.com', 'Divorced', 'Bank PQR - Account 66778', '1988-12-25', 'Polícia Federal', 'Case regarding medical negligence', 'PN-007', 7, 4, 2);
 
 -- Insert sample data into Deadlines for debugging purposes
 INSERT OR IGNORE INTO Deadlines (CaseID, DeadlineTypeID, DeadlineDate, StatusID)
@@ -121,7 +125,13 @@ VALUES
 (1, 1, '2023-11-01', 1), -- Reunião for John Doe's case
 (1, 2, '2023-11-15', 2), -- Petição Inicial for John Doe's case
 (2, 3, '2023-12-01', 3), -- Notificação Extrajudicial for Jane Smith's case
-(3, 4, '2023-12-10', 4); -- Contrato for Alice Johnson's case
+(3, 4, '2023-12-10', 4), -- Contrato for Alice Johnson's case
+(4, 5, '2023-11-20', 1), -- Defesa for Carlos Silva's case
+(4, 6, '2023-12-05', 2), -- Impugnação for Carlos Silva's case
+(5, 7, '2023-12-15', 3), -- Recurso for Maria Oliveira's case
+(6, 8, '2023-12-20', 4), -- E-mail for Pedro Santos's case
+(7, 9, '2024-01-10', 1), -- Manifestação for Ana Costa's case
+(7, 10, '2024-01-25', 2); -- Audiência Conciliação for Ana Costa's case
 
 -- Insert sample data into Fees for debugging purposes
 INSERT OR IGNORE INTO Fees (CaseID, FeeTypeID, FeeValue, FeeStatusID)
@@ -129,4 +139,10 @@ VALUES
 (1, 1, 500.00, 1), -- Fee for John Doe's case
 (1, 2, 200.00, 2), -- Fee for John Doe's case
 (2, 1, 700.00, 1), -- Fee for Jane Smith's case
-(3, 1, 300.00, 2); -- Fee for Alice Johnson's case
+(3, 1, 300.00, 2), -- Fee for Alice Johnson's case
+(4, 1, 800.00, 1), -- Fee for Carlos Silva's case
+(4, 2, 300.00, 2), -- Fee for Carlos Silva's case
+(5, 1, 1000.00, 1), -- Fee for Maria Oliveira's case
+(6, 2, 400.00, 2), -- Fee for Pedro Santos's case
+(7, 1, 600.00, 1), -- Fee for Ana Costa's case
+(7, 2, 250.00, 2); -- Fee for Ana Costa's case
