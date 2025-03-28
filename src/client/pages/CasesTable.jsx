@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import '../styles/CasesTable.css';
 import { FaSort, FaSortUp, FaSortDown, FaFilter } from 'react-icons/fa';
-import CaseForm from "../components/CaseForm.jsx";
+import CaseCore from "../components/CaseCore.jsx";
 
 const CasesTable = () => {
   const [cases, setCases] = useState([]);
   const [filteredCases, setFilteredCases] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({ Name: '', ProcessNumber: '', CaseStatusName: '' });
+  const [filters, setFilters] = useState({ Name: '', ProcessNumber: '', CaseStatus: '' });
   const [sortConfig, setSortConfig] = useState({ key: '', direction: '' });
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCase, setSelectedCase] = useState(null);
@@ -208,12 +208,12 @@ const CasesTable = () => {
       <table className="cases-table">
         <thead>
           <tr>
-            {['Name', 'ProcessNumber', 'CaseStatusName', 'Deadlines', 'CaseDescription', 'Fees'].map(key => (
+            {['Name', 'ProcessNumber', 'CaseStatus', 'Deadlines', 'CaseDescription', 'Fees'].map(key => (
               <th key={key}>
                 <div className="header-content">
                   {key === 'Name' ? 'Nome' :
                     key === 'ProcessNumber' ? 'Número do Processo' :
-                      key === 'CaseStatusName' ? 'Status' :
+                      key === 'CaseStatus' ? 'Status' :
                         key === 'Deadlines' ? 'Prazos' :
                           key === 'CaseDescription' ? 'Descrição' : 'Honorários'}
 
@@ -238,7 +238,7 @@ const CasesTable = () => {
               <tr key={c.CaseID} onClick={() => setSelectedCase(c)}>
                 <td>{c.Name}</td>
                 <td>{c.ProcessNumber}</td>
-                <td>{c.CaseStatusName}</td>
+                <td>{c.CaseStatus}</td>
                 <td>{renderList(pendentes)}</td>
                 <td>{c.CaseDescription}</td>
                 <td>R$ {naoPagos}</td>
@@ -258,7 +258,7 @@ const CasesTable = () => {
         <div className="modal-overlay" onClick={() => setSelectedCase(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             {showSuccess && (<div className="success-banner">Alterações salvas com sucesso!</div>)}
-            <CaseForm
+            <CaseCore
               formData={selectedCase}
               setFormData={setSelectedCase}
               deadlines={selectedCase.Deadlines || []}
@@ -267,7 +267,6 @@ const CasesTable = () => {
               setFees={updated => setSelectedCase({ ...selectedCase, Fees: updated })}
               onSubmit={handleSave}
               submitText="Salvar Alterações"
-              showStatusDropdown={false}
             />
           </div>
         </div>

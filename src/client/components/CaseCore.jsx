@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styles from "../styles/NewCase.module.css";
+import styles from "../styles/CaseCore.module.css";
 import {
     validateCPF, validateEmail, validateRG, validatePhone,
 } from "../../utils/validation.js";
@@ -34,12 +34,11 @@ const feeLabels = {
     FeeStatus: "Status"
 };
 
-export default function CaseForm({
+export default function CaseCore({
     formData, setFormData,
     deadlines = [], setDeadlines,
     fees = [], setFees,
-    onSubmit, submitText = "Salvar",
-    showStatusDropdown = true
+    onSubmit, submitText = "Salvar"
 }) {
 
     const [errors, setErrors] = useState({});
@@ -121,19 +120,17 @@ export default function CaseForm({
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Detalhes do Caso</h1>
-                {showStatusDropdown && (
-                    <select
-                        className={styles.statusDropdown}
-                        name="CaseStatusID"
-                        value={formData.CaseStatusID || ""}
-                        onChange={handleChange}
-                    >
-                        <option value="">Selecione um status</option>
-                        {caseStatuses.map(s => (
-                            <option key={s.CaseStatusID} value={s.CaseStatusID}>{s.StatusName}</option>
-                        ))}
-                    </select>
-                )}
+                <select
+                    className={styles.statusDropdown}
+                    name="CaseStatus"
+                    value={formData["CaseStatus"] || ""}
+                    onChange={handleChange}
+                >
+                    <option value="">Selecione um status</option>
+                    {caseStatuses.map(s => (
+                        <option key={s.CaseStatusID} value={s.StatusName}>{s.StatusName}</option>
+                    ))}
+                </select>
             </div>
 
             <form className={`${styles.form} ${styles.formSpacing}`} onSubmit={e => e.preventDefault()}>

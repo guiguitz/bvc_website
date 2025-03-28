@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import CaseForm from "../components/CaseForm";
+import CaseCore from "../components/CaseCore.jsx";
 
 const defaultData = {
   Name: "", CPF: "", RG: "", Address: "", Profession: "", Phone: "", Email: "",
@@ -32,7 +32,7 @@ export default function NewCase() {
   };
 
   return (
-    <CaseForm
+    <CaseCore
       formData={formData}
       setFormData={setFormData}
       deadlines={deadlines}
@@ -40,8 +40,7 @@ export default function NewCase() {
       fees={fees}
       setFees={setFees}
       onSubmit={handleSave}
-      submitText="Salvar"
-      showStatusDropdown={true}
+      submitText="Salvar Novo Caso"
     />
   );
 }
