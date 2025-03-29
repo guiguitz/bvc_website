@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS Cases (
     RG TEXT NOT NULL,
     Address TEXT NOT NULL,
     Profession TEXT,
-    Phone TEXT UNIQUE,
-    Email TEXT UNIQUE,
+    Phone TEXT,
+    Email TEXT,
     CivilStatus TEXT,
     BankDetails TEXT,
     BirthDate TEXT,
@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS Fees (
     FeeTypeID INTEGER NOT NULL,
     FeeValue REAL NOT NULL,
     FeeStatusID INTEGER NOT NULL,
+    UNIQUE (CaseID, FeeTypeID, FeeValue), -- Prevent duplicate deadlines for the same case
     FOREIGN KEY (CaseID) REFERENCES Cases(CaseID),
     FOREIGN KEY (FeeTypeID) REFERENCES FeeTypes(FeeTypeID),
     FOREIGN KEY (FeeStatusID) REFERENCES FeeStatuses(FeeStatusID)

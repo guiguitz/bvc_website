@@ -183,7 +183,7 @@ const CasesTable = () => {
   );
 
   const handleSave = async () => {
-    await fetch("http://localhost:5000/api/databaseInsert", {
+    await fetch("http://localhost:5000/api/databaseInsert?type=newCase", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(selectedCase),

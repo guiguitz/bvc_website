@@ -18,14 +18,87 @@ export default async function handler(req, res) {
     res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,POST");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    console.log("[Backend] Received request:", {
-        method: req.method,
-        url: req.url,
-        query: req.query,
-    });
+    console.log("REQUEST:", { method: req.method, query: req.query, body: req.body });
+    const { type } = req.query;
+    const body = req.body;
 
     if (req.method === "OPTIONS") {
         return res.status(200).end();
+    }
+
+    if (req.method === "POST") {
+        if (type === "newCase" || type === "updateCase") {
+            try {
+                // Insert case details
+                const caseInsertQuery = `
+                    INSERT OR REPLACE INTO Cases (
+                        Name, CPF, RG, Address, Profession, Phone, Email, CivilStatus,
+                        BankDetails, BirthDate, Organization, CaseDescription, ProcessNumber,
+                        JusticeScopeID, DemandTypeID, StatusID
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                        (SELECT JusticeScopeID FROM JusticeScopes WHERE ScopeName = ?),
+                        (SELECT DemandTypeID FROM DemandTypes WHERE DemandName = ?),
+                        (SELECT CaseStatusID FROM CaseStatuses WHERE StatusName = ?)
+                    )`;
+                const caseParams = [
+                    body.Name, body.CPF, body.RG, body.Address, body.Profession, body.Phone,
+                    body.Email, body.CivilStatus, body.BankDetails, body.BirthDate,
+                    body.Organization, body.CaseDescription, body.ProcessNumber,
+                    body.JusticeScope, body.DemandType, body.CaseStatus
+                ];
+
+                // Use a promise to get the lastID
+                const caseID = await new Promise((resolve, reject) => {
+                    db.run(caseInsertQuery, caseParams, function (err) {
+                        if (err) return reject(err);
+                        resolve(this.lastID); // Retrieve the last inserted ID
+                    });
+                });
+
+                // Insert fees
+                const feeInsertQuery = `
+                    INSERT OR REPLACE INTO Fees (CaseID, FeeTypeID, FeeValue, FeeStatusID)
+                    VALUES (?,
+                        (SELECT FeeTypeID FROM FeeTypes WHERE TypeName = ?),
+                        ?,
+                        (SELECT FeeStatusID FROM FeeStatuses WHERE StatusName = ?)
+                    )`;
+                for (const fee of body.Fees) {
+                    await new Promise((resolve, reject) => {
+                        db.run(feeInsertQuery, [caseID, fee.FeeType, fee.FeeValue, fee.FeeStatus], (err) => {
+                            if (err) return reject(err);
+                            resolve();
+                        });
+                    });
+                }
+
+                // Insert deadlines
+                const deadlineInsertQuery = `
+                    INSERT OR REPLACE INTO Deadlines (CaseID, DeadlineTypeID, DeadlineDate, StatusID)
+                    VALUES (?,
+                        (SELECT DeadlineTypeID FROM DeadlineTypes WHERE TypeName = ?),
+                        ?,
+                        (SELECT DeadlineStatusID FROM DeadlineStatuses WHERE StatusName = ?)
+                    )`;
+                for (const deadline of body.Deadlines) {
+                    await new Promise((resolve, reject) => {
+                        db.run(deadlineInsertQuery, [caseID, deadline.DeadlineType, deadline.DeadlineDate, deadline.DeadlineStatus], (err) => {
+                            if (err) return reject(err);
+                            resolve();
+                        });
+                    });
+                }
+
+                console.log("[Backend] New case inserted successfully with CaseID:", caseID);
+                return res.status(201).json({ message: "Case inserted successfully", CaseID: caseID });
+            } catch (error) {
+                console.error("[Backend] Error inserting new case:", error);
+                return res.status(500).json({ error: "Failed to insert new case" });
+            }
+        } else {
+            console.error("[Backend] Invalid 'query' for POST request.");
+            return res.status(400).json({ error: "Invalid 'query' for POST request" });
+        }
     }
 
     if (req.method === "GET") {
@@ -117,7 +190,7 @@ export default async function handler(req, res) {
                     Deadlines: deadlinesByCase[caseItem.CaseID] || [],
                 }));
 
-                console.log("[Backend] Resonse:", JSON.stringify(results, null, 2));
+                // console.log("[Backend] Resonse:", JSON.stringify(results, null, 2));
                 return res.status(200).json(results);
             } catch (error) {
                 console.error("[Backend] Error fetching cases with fees and deadlines:", error);
@@ -129,7 +202,6 @@ export default async function handler(req, res) {
         const tableName = TABLES[type];
         const query = `SELECT * FROM ${tableName}`;
         try {
-            console.log(`[Backend] Executing query: ${query}`);
             const results = await dbAllAsync(query);
 
             if (!results || results.length === 0) {
@@ -137,7 +209,7 @@ export default async function handler(req, res) {
                 return res.status(404).json({ error: `No records found.` });
             }
 
-            console.log("[Backend] Resonse:", JSON.stringify(results, null, 2));
+            // console.log("[Backend] Resonse:", JSON.stringify(results, null, 2));
             return res.status(200).json(results);
         } catch (error) {
             console.error(`[Backend] Error executing query: ${query}`, error);

@@ -3,7 +3,7 @@ import fs from "fs/promises";
 
 async function initializeDatabase() {
     try {
-        const sql = await fs.readFile("./src/server/database/database.sql", "utf-8");
+        const sql = await fs.readFile("./src/server/routes/database/database.sql", "utf-8");
         const statements = sql.split(";").map(stmt => stmt.trim()).filter(stmt => stmt);
 
         console.log("Starting database initialization...");

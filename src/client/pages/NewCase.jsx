@@ -3,19 +3,18 @@ import CaseCore from "../components/CaseCore.jsx";
 
 const defaultData = {
   Name: "", CPF: "", RG: "", Address: "", Profession: "", Phone: "", Email: "",
-  CivilStatus: "", BankDetails: "", BirthDate: "", JusticeScopeID: "",
-  DemandTypeID: "", Organization: "", CaseDescription: "", ProcessNumber: "",
-  Observations: "", CaseStatusID: ""
+  CivilStatus: "", BankDetails: "", BirthDate: "", Organization: "", CaseDescription: "",
+  ProcessNumber: "", JusticeScope: "", DemandType: "", CaseStatus: ""
 };
 
 export default function NewCase() {
   const [formData, setFormData] = useState({ ...defaultData });
-  const [deadlines, setDeadlines] = useState([{ DeadlineType: "", DeadlineDate: "", DeadlineStatus: "" }]);
-  const [fees, setFees] = useState([{ FeeType: "", FeeValue: "", FeeStatus: "" }]);
+  const [Deadlines, setDeadlines] = useState([{ DeadlineType: "", DeadlineDate: "", DeadlineStatus: "" }]);
+  const [Fees, setFees] = useState([{ FeeType: "", FeeValue: "", FeeStatus: "" }]);
 
   const handleSave = async () => {
-    const body = { ...formData, deadlines, fees };
-    const res = await fetch("http://localhost:5000/api/saveCase", {
+    const body = { ...formData, Deadlines, Fees };
+    const res = await fetch("http://localhost:5000/api/databaseInsert?type=newCase", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
@@ -35,9 +34,9 @@ export default function NewCase() {
     <CaseCore
       formData={formData}
       setFormData={setFormData}
-      deadlines={deadlines}
+      deadlines={Deadlines}
       setDeadlines={setDeadlines}
-      fees={fees}
+      fees={Fees}
       setFees={setFees}
       onSubmit={handleSave}
       submitText="Salvar Novo Caso"

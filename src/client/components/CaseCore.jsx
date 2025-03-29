@@ -50,6 +50,11 @@ export default function CaseCore({
     const [feeTypes, setFeeTypes] = useState([]);
     const [feeStatuses, setFeeStatuses] = useState([]);
 
+    const [showJsonModal, setShowJsonModal] = useState(false);
+    const [jsonInput, setJsonInput] = useState("");
+    const [loadingJson, setLoadingJson] = useState(false);
+    const [jsonError, setJsonError] = useState("");
+
     useEffect(() => {
         const fetchOptions = async () => {
             try {
@@ -113,24 +118,77 @@ export default function CaseCore({
         return required.every(field => formData[field]?.trim()) && Object.values(errors).every(e => !e);
     };
 
-    console.log("deadlines: ", deadlines);
-    console.log("deadlineStatuses: ", deadlineStatuses);
+    const handleJsonParse = () => {
+        setLoadingJson(true);
+        setJsonError("");
+
+        try {
+            const parsed = JSON.parse(jsonInput);
+
+            const parsedForm = {
+                Name: parsed.Name,
+                CPF: parsed.CPF,
+                RG: parsed.RG,
+                Address: parsed.Address,
+                Profession: parsed.Profession,
+                Phone: parsed.Phone,
+                Email: parsed.Email,
+                CivilStatus: parsed.CivilStatus,
+                BankDetails: parsed.BankDetails,
+                BirthDate: parsed.BirthDate,
+                JusticeScope: parsed.JusticeScope,
+                DemandType: parsed.DemandType,
+                Organization: parsed.Organization,
+                CaseDescription: parsed.CaseDescription,
+                ProcessNumber: parsed.ProcessNumber,
+                CaseStatus: parsed.CaseStatus
+            };
+
+            const parsedDeadlines = Array.isArray(parsed.deadlines) ? parsed.deadlines : parsed.Deadlines || [];
+            const parsedFees = Array.isArray(parsed.fees) ? parsed.fees : parsed.Fees || [];
+
+            setFormData({ ...formData, ...parsedForm });
+            setDeadlines(parsedDeadlines);
+            setFees(parsedFees);
+
+            setShowJsonModal(false);
+            setJsonInput("");
+        } catch (err) {
+            console.error("JSON parse error:", err);
+            setJsonError("Erro ao interpretar o JSON. Verifique o formato.");
+        } finally {
+            setLoadingJson(false);
+        }
+    };
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Detalhes do Caso</h1>
-                <select
-                    className={styles.statusDropdown}
-                    name="CaseStatus"
-                    value={formData["CaseStatus"] || ""}
-                    onChange={handleChange}
-                >
-                    <option value="">Selecione um status</option>
-                    {caseStatuses.map(s => (
-                        <option key={s.CaseStatusID} value={s.StatusName}>{s.StatusName}</option>
-                    ))}
-                </select>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <select
+                        className={styles.statusDropdown}
+                        name="CaseStatus"
+                        value={formData["CaseStatus"] || ""}
+                        onChange={handleChange}
+                    >
+                        <option value="">Selecione um status</option>
+                        {caseStatuses.map(s => (
+                            <option key={s.CaseStatusID} value={s.StatusName}>
+                                {s.StatusName}
+                            </option>
+                        ))}
+                    </select>
+
+                    <button
+                        className={styles.jsonButton}
+                        onClick={() => setShowJsonModal(true)}
+                        title="Importar de JSON"
+                    >
+                        📄
+                    </button>
+
+                </div>
             </div>
 
             <form className={`${styles.form} ${styles.formSpacing}`} onSubmit={e => e.preventDefault()}>
@@ -266,6 +324,44 @@ export default function CaseCore({
             >
                 {submitText}
             </button>
+
+            {showJsonModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <h2>📄 Importar Dados do Caso via JSON</h2>
+                        <p>
+                            Cole abaixo o conteúdo de um arquivo JSON contendo os dados do caso, prazos e honorários.
+                        </p>
+
+                        <textarea
+                            rows={10}
+                            className={styles.jsonTextarea}
+                            placeholder={`{
+  "formData": {
+    "Name": "João da Silva",
+    "CPF": "123.456.789-00"
+  },
+  "deadlines": [...],
+  "fees": [...]
+}`}
+                            value={jsonInput}
+                            onChange={(e) => setJsonInput(e.target.value)}
+                        />
+
+                        {jsonError && <div className={styles.jsonError}>{jsonError}</div>}
+
+                        <div className={styles.modalActions}>
+                            <button className={styles.primaryButton} onClick={handleJsonParse} disabled={loadingJson}>
+                                {loadingJson ? "Carregando..." : "Preencher com JSON"}
+                            </button>
+                            <button className={styles.secondaryButton} onClick={() => setShowJsonModal(false)}>
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }
